@@ -4,11 +4,17 @@
 #define uint  unsigned int  
 
 uint cycleN;
+uint pwmN;
 uint count;
-sbit pwm1 = P0^0;          	//PWM信号输出
-sbit pwm2 = P0^1;
-sbit pwm3 = P0^2;
-sbit pwm4 = P0^3;
+sbit leftPwm1 = P0^0;          	//PWM信号输出
+sbit leftPwm2 = P0^1;
+sbit rightPwm1 = P0^2;
+sbit rightPwm2 = P0^3;
+uint LeftData[4];
+uint RightData[4];
+bit left;
+bit right;
+uint speedLev;
 
 void Sys_Init()
 {
@@ -25,12 +31,57 @@ void Sys_Init()
 void Var_Init()
 {	
 	cycleN = 6;
+	pwmN = 3;
 	count = 0;
 
-	pwm1 = 1;
-	pwm2 = 0;
-	pwm3 = 1;
-	pwm4 = 0;
+	leftPwm1 = 1;
+	leftPwm2 = 0;
+	rightPwm1 = 1;
+	rightPwm2 = 0;
+
+	left = true;
+	right = true;
+	speedLev = 0;
+}
+
+void CtrlSpeed()				//中间对称地分离P3口的数据，控制两侧电机
+{
+	LeftData[0] = P3^0;
+	LeftData[1] = P3^1;
+	LeftData[2] = P3^2;
+	LeftData[3] = P3^3;
+	RightData[0] = P3^7;
+	RightData[1] = P3^6;
+	RightData[2] = P3^5;
+	RightData[3] = P3^4;
+
+	for(int i = 0;i < 4;i++)
+	{
+		if(LeftData[i] > RightData[i])
+		{
+			speedLev = speedLev + (4 - i);
+		}
+		if (LeftData[i] < RightData[i])
+		{
+			speedLev = speedLev - (4 - i)
+		}
+	}
+
+	if (speedLev > 0)		//左侧传感器检测到黑线，右侧电机动							
+	{
+		left = false;
+		right = true;	
+	}
+	if (speedLev < 0)		//右侧传感器检测到黑线，左侧电机动
+	{
+		left = true;
+		right = false;
+	}
+	if (speedLev == 0)
+	{
+		left = true;
+		right = true;
+	}
 }
 
 main()
@@ -40,7 +91,7 @@ main()
 
  	while(1)
 	{
-
+		CtrlSpeed();
 	}
 }
 
@@ -55,18 +106,35 @@ void Timer1_Int() interrupt 3 	//中断程序
 		count = 0;
 	}
 
-	if(count >= 0 && count < 3 && P3 != 0xff)
+	if(count >= 0 && count < pwmN)
 	{
-		pwm1 = 1;
-		pwm2 = 0;
-		pwm3 = 1;
-		pwm4 = 0;
+		if (left == true && right == false)
+		{
+			leftPwm1 = 1;
+			leftPwm2 = 0;
+			rightPwm1 = 0;
+			rightPwm2 = 0;
+		}
+		if (left == false && right == true)
+		{
+			leftPwm1 = 0;
+			leftPwm2 = 0;
+			rightPwm1 = 1;
+			rightPwm2 = 0;
+		}
+		else
+		{
+			leftPwm1 = 1;
+			leftPwm2 = 0;
+			rightPwm1 = 1;
+			rightPwm2 = 0;
+		}
 	}
 	else
 	{
-		pwm1 = 0;
-		pwm2 = 0;
-		pwm3 = 0;
-		pwm4 = 0;
+		leftPwm1 = 0;
+		leftPwm2 = 0;
+		rightPwm1 = 0;
+		rightPwm2 = 0;
 	}
 }
