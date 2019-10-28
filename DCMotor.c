@@ -46,6 +46,7 @@ void Var_Init()
 
 void CtrlSpeed()				//中间对称地分离P3口的数据，控制两侧电机
 {
+	uint i;
 	LeftData[0] = P3^0;
 	LeftData[1] = P3^1;
 	LeftData[2] = P3^2;
@@ -55,7 +56,7 @@ void CtrlSpeed()				//中间对称地分离P3口的数据，控制两侧电机
 	RightData[2] = P3^5;
 	RightData[3] = P3^4;
 
-	for(int i = 0;i < 4;i++)
+	for(i = 0;i < 4;i++)
 	{
 		if(LeftData[i] > RightData[i])
 		{
@@ -63,7 +64,7 @@ void CtrlSpeed()				//中间对称地分离P3口的数据，控制两侧电机
 		}
 		if (LeftData[i] < RightData[i])
 		{
-			speedLev = speedLev - (4 - i)
+			speedLev = speedLev - (4 - i);
 		}
 	}
 
