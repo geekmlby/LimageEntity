@@ -23,9 +23,7 @@ void Sys_Init()
 
 	TH1 = 0xfc;
 	TL1 = 0x66;
-	TR1 = 1;
-
-	P3 = 0xff;
+	TR1 = 1;	
 }
 
 void Var_Init()
@@ -39,13 +37,17 @@ void Var_Init()
 	rightPwm1 = 1;
 	rightPwm2 = 0;
 
-	left = true;
-	right = true;
+	left = 1;
+	right = 1;
 	speedLev = 0;
 }
 
 void CtrlSpeed()				//中间对称地分离P3口的数据，控制两侧电机
 {
+	uint i;
+
+	P3 = 0xff;
+
 	LeftData[0] = P3^0;
 	LeftData[1] = P3^1;
 	LeftData[2] = P3^2;
@@ -54,8 +56,8 @@ void CtrlSpeed()				//中间对称地分离P3口的数据，控制两侧电机
 	RightData[1] = P3^6;
 	RightData[2] = P3^5;
 	RightData[3] = P3^4;
-
-	for(int i = 0;i < 4;i++)
+	
+	for(i = 0;i < 4;i++)
 	{
 		if(LeftData[i] > RightData[i])
 		{
@@ -63,24 +65,24 @@ void CtrlSpeed()				//中间对称地分离P3口的数据，控制两侧电机
 		}
 		if (LeftData[i] < RightData[i])
 		{
-			speedLev = speedLev - (4 - i)
+			speedLev = speedLev - (4 - i);
 		}
 	}
 
 	if (speedLev > 0)		//左侧传感器检测到黑线，右侧电机动							
 	{
-		left = false;
-		right = true;	
+		left = 0;
+		right = 1;	
 	}
 	if (speedLev < 0)		//右侧传感器检测到黑线，左侧电机动
 	{
-		left = true;
-		right = false;
+		left = 1;
+		right = 0;
 	}
 	if (speedLev == 0)
 	{
-		left = true;
-		right = true;
+		left = 1;
+		right = 1;
 	}
 }
 
@@ -108,14 +110,14 @@ void Timer1_Int() interrupt 3 	//中断程序
 
 	if(count >= 0 && count < pwmN)
 	{
-		if (left == true && right == false)
+		if (left == 1 && right == 0)
 		{
 			leftPwm1 = 1;
 			leftPwm2 = 0;
 			rightPwm1 = 0;
 			rightPwm2 = 0;
 		}
-		if (left == false && right == true)
+		if (left == 0 && right == 1)
 		{
 			leftPwm1 = 0;
 			leftPwm2 = 0;
