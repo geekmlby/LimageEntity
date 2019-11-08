@@ -45,7 +45,7 @@ void Sys_Init()
 void Var_Init()
 {	
 	cycleN = 8;
-	pwmN = 4;
+	pwmN = 8;
 	count = 0;
 
 	leftPwm1 = 1;
@@ -154,6 +154,11 @@ void Timer1_Int() interrupt 3 	//ÖÐ¶Ï³ÌÐò
 			//leftPwm2 = 0;
 			rightPwm1 = 1;
 			//rightPwm2 = 0;
+		}
+		if ( (left == 0 && right == 0) || (left == 1 && right == 1) )
+		{
+			leftPwm1 = 1;
+			rightPwm1 = 1;
 		}
 	}
 	else
