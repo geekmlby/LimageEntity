@@ -136,31 +136,31 @@ void Timer1_Int() interrupt 3 	//ÖĞ¶Ï³ÌĞò
 
 	if(count >= 0 && count < pwmN)
 	{
-		leftPwm1 = 1;
+		/*leftPwm1 = 1;
 		leftPwm2 = 0;
 		rightPwm1 = 1;
-		rightPwm2 = 0;
+		rightPwm2 = 0;*/
 
 		if (left == 1 && right == 0)
 		{
 			leftPwm1 = 1;
-			leftPwm2 = 0;
+			//leftPwm2 = 0;
 			rightPwm1 = 0;
-			rightPwm2 = 0;
+			//rightPwm2 = 0;
 		}
 		if (left == 0 && right == 1)
 		{
 			leftPwm1 = 0;
-			leftPwm2 = 0;
+			//leftPwm2 = 0;
 			rightPwm1 = 1;
-			rightPwm2 = 0;
+			//rightPwm2 = 0;
 		}
 	}
 	else
 	{
 		leftPwm1 = 0;
-		leftPwm2 = 0;
+		//leftPwm2 = 0;
 		rightPwm1 = 0;
-		rightPwm2 = 0;
+		//rightPwm2 = 0;
 	}
 }
