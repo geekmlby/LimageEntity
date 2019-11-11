@@ -10,11 +10,26 @@ sbit leftPwm1 = P0^0;          	//PWM信号输出
 sbit leftPwm2 = P0^1;
 sbit rightPwm1 = P0^2;
 sbit rightPwm2 = P0^3;
-uint LeftData[4];
-uint RightData[4];
-bit left;
-bit right;
-uint speedLev;
+
+sbit led0 = P1^0;
+sbit led1 = P1^1;
+sbit led2 = P1^2;
+sbit led3 = P1^3;
+sbit led4 = P1^4;
+sbit led5 = P1^5;
+sbit led6 = P1^6;
+sbit led7 = P1^7;
+sbit sensor0 = P3^0;
+sbit sensor1 = P3^1;
+sbit sensor2 = P3^2;
+sbit sensor3 = P3^3;
+sbit sensor4 = P3^4;
+sbit sensor5 = P3^5;
+sbit sensor6 = P3^6;
+sbit sensor7 = P3^7;
+
+sbit left;
+sbit right;
 
 void Sys_Init()
 {
@@ -23,15 +38,13 @@ void Sys_Init()
 
 	TH1 = 0xfc;
 	TL1 = 0x66;
-	TR1 = 1;
-
-	P3 = 0xff;
+	TR1 = 1;	
 }
 
 void Var_Init()
 {	
-	cycleN = 6;
-	pwmN = 3;
+	cycleN = 8;
+	pwmN = 8;
 	count = 0;
 
 	leftPwm1 = 1;
@@ -39,49 +52,31 @@ void Var_Init()
 	rightPwm1 = 1;
 	rightPwm2 = 0;
 
-	left = true;
-	right = true;
-	speedLev = 0;
+	left = 1;
+	right = 1;
 }
 
 void CtrlSpeed()				//中间对称地分离P3口的数据，控制两侧电机
 {
-	uint i;
-	LeftData[0] = P3^0;
-	LeftData[1] = P3^1;
-	LeftData[2] = P3^2;
-	LeftData[3] = P3^3;
-	RightData[0] = P3^7;
-	RightData[1] = P3^6;
-	RightData[2] = P3^5;
-	RightData[3] = P3^4;
+	led0 = sensor0;
+	led1 = sensor1;
+	led2 = sensor2;
+	led3 = sensor3;
+	led4 = sensor4;
+	led5 = sensor5;
+	led6 = sensor6;
+	led7 = sensor7;
 
-	for(i = 0;i < 4;i++)
-	{
-		if(LeftData[i] > RightData[i])
-		{
-			speedLev = speedLev + (4 - i);
-		}
-		if (LeftData[i] < RightData[i])
-		{
-			speedLev = speedLev - (4 - i);
-		}
-	}
+	right = 1;
+	left = 1;
 
-	if (speedLev > 0)		//左侧传感器检测到黑线，右侧电机动							
+	if((sensor0 == 1 && sensor7 == 0) || (sensor1 == 1 && sensor6 == 0) || (sensor2 == 1 && sensor5 == 0))
 	{
-		left = false;
-		right = true;	
+		left = 0;
 	}
-	if (speedLev < 0)		//右侧传感器检测到黑线，左侧电机动
+	if((sensor0 == 0 && sensor7 == 1) || (sensor1 == 0 && sensor6 == 1) || (sensor2 == 0 && sensor5 == 1))
 	{
-		left = true;
-		right = false;
-	}
-	if (speedLev == 0)
-	{
-		left = true;
-		right = true;
+		right = 0;
 	}
 }
 
@@ -107,35 +102,24 @@ void Timer1_Int() interrupt 3 	//中断程序
 		count = 0;
 	}
 
-	if(count >= 0 && count < pwmN)
+	if(count >= 0 && count < pwmN && left == 1 && right == 0)
 	{
-		if (left == true && right == false)
-		{
-			leftPwm1 = 1;
-			leftPwm2 = 0;
-			rightPwm1 = 0;
-			rightPwm2 = 0;
-		}
-		if (left == false && right == true)
-		{
-			leftPwm1 = 0;
-			leftPwm2 = 0;
-			rightPwm1 = 1;
-			rightPwm2 = 0;
-		}
-		else
-		{
-			leftPwm1 = 1;
-			leftPwm2 = 0;
-			rightPwm1 = 1;
-			rightPwm2 = 0;
-		}
+		leftPwm1 = 1;
+		rightPwm1 = 0;
+	}
+	else if(count >= 0 && count < pwmN && left == 0 && right == 1)
+	{
+		leftPwm1 = 0;
+		rightPwm1 = 1;
+	}
+	else if(count >= 0 && count < pwmN && left == right)
+	{
+		leftPwm1 = 1;
+		rightPwm1 = 1;
 	}
 	else
 	{
 		leftPwm1 = 0;
-		leftPwm2 = 0;
 		rightPwm1 = 0;
-		rightPwm2 = 0;
 	}
 }
