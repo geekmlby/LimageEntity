@@ -28,9 +28,8 @@ sbit sensor5 = P3^5;
 sbit sensor6 = P3^6;
 sbit sensor7 = P3^7;
 
-int left;
-int right;
-int speedLev;
+sbit left;
+sbit right;
 
 void Sys_Init()
 {
@@ -55,9 +54,6 @@ void Var_Init()
 
 	left = 1;
 	right = 1;
-	speedLev = 0;
-
-	//P3 = 0xff;
 }
 
 void CtrlSpeed()				//中间对称地分离P3口的数据，控制两侧电机
@@ -74,41 +70,13 @@ void CtrlSpeed()				//中间对称地分离P3口的数据，控制两侧电机
 	right = 1;
 	left = 1;
 
-	if(sensor0 == 1 && sensor7 == 0)
+	if((sensor0 == 1 && sensor7 == 0) || (sensor1 == 1 && sensor6 == 0) || (sensor2 == 1 && sensor5 == 0))
 	{
-		//led0 = 0;			 //亮
-		//led1 = 1;		  	 //不亮
-		right = 1;
 		left = 0;
 	}
-	if(sensor0 == 0 && sensor7 == 1)
-	{
-		//led0 = 1;			 //不亮
-		//led1 = 0;			 //亮
-		right = 0;
-		left = 1;
-	}
-
-	if(sensor1 == 1 && sensor6 == 0)
-	{
-		right = 1;
-		left = 0;
-	}
-	if(sensor1 == 0 && sensor6 == 1)
+	if((sensor0 == 0 && sensor7 == 1) || (sensor1 == 0 && sensor6 == 1) || (sensor2 == 0 && sensor5 == 1))
 	{
 		right = 0;
-		left = 1;
-	}
-
-	if(sensor2 == 1 && sensor5 == 0)
-	{
-		right = 1;
-		left = 0;
-	}
-	if(sensor2 == 0 && sensor5 == 1)
-	{
-		right = 0;
-		left = 1;
 	}
 }
 
@@ -134,38 +102,24 @@ void Timer1_Int() interrupt 3 	//中断程序
 		count = 0;
 	}
 
-	if(count >= 0 && count < pwmN)
+	if(count >= 0 && count < pwmN && left == 1 && right == 0)
 	{
-		/*leftPwm1 = 1;
-		leftPwm2 = 0;
+		leftPwm1 = 1;
+		rightPwm1 = 0;
+	}
+	else if(count >= 0 && count < pwmN && left == 0 && right == 1)
+	{
+		leftPwm1 = 0;
 		rightPwm1 = 1;
-		rightPwm2 = 0;*/
-
-		if (left == 1 && right == 0)
-		{
-			leftPwm1 = 1;
-			//leftPwm2 = 0;
-			rightPwm1 = 0;
-			//rightPwm2 = 0;
-		}
-		if (left == 0 && right == 1)
-		{
-			leftPwm1 = 0;
-			//leftPwm2 = 0;
-			rightPwm1 = 1;
-			//rightPwm2 = 0;
-		}
-		if ( (left == 0 && right == 0) || (left == 1 && right == 1) )
-		{
-			leftPwm1 = 1;
-			rightPwm1 = 1;
-		}
+	}
+	else if(count >= 0 && count < pwmN && left == right)
+	{
+		leftPwm1 = 1;
+		rightPwm1 = 1;
 	}
 	else
 	{
 		leftPwm1 = 0;
-		//leftPwm2 = 0;
 		rightPwm1 = 0;
-		//rightPwm2 = 0;
 	}
 }
