@@ -28,16 +28,16 @@ sbit sensor5 = P3^5;
 sbit sensor6 = P3^6;
 sbit sensor7 = P3^7;
 
-sbit left;
-sbit right;
+uint left;
+uint right;
 
 void Sys_Init()
 {
-	TMOD = 0x10;			//定时器1做为8位计数器
+	TMOD = 0x10;			//定时器1做为16位计数器，工作在方式1
 	IE = 0x88;
 
-	TH1 = 0xfc;
-	TL1 = 0x66;
+	TH1 = 0xf8;
+	TL1 = 0xcd;
 	TR1 = 1;	
 }
 
@@ -58,25 +58,29 @@ void Var_Init()
 
 void CtrlSpeed()				//中间对称地分离P3口的数据，控制两侧电机
 {
-	led0 = sensor0;
+	/*led0 = sensor0;
 	led1 = sensor1;
 	led2 = sensor2;
 	led3 = sensor3;
 	led4 = sensor4;
 	led5 = sensor5;
 	led6 = sensor6;
-	led7 = sensor7;
-
-	right = 1;
-	left = 1;
+	led7 = sensor7;*/	
 
 	if((sensor0 == 1 && sensor7 == 0) || (sensor1 == 1 && sensor6 == 0) || (sensor2 == 1 && sensor5 == 0))
 	{
 		left = 0;
+		right = 1;
 	}
-	if((sensor0 == 0 && sensor7 == 1) || (sensor1 == 0 && sensor6 == 1) || (sensor2 == 0 && sensor5 == 1))
+	else if((sensor0 == 0 && sensor7 == 1) || (sensor1 == 0 && sensor6 == 1) || (sensor2 == 0 && sensor5 == 1))
 	{
+		left = 1;
 		right = 0;
+	}
+	else
+	{
+		right = 1;
+		left = 1;
 	}
 }
 
@@ -93,8 +97,8 @@ main()
 
 void Timer1_Int() interrupt 3 	//中断程序
 {
-	TH1 = 0xfc;
-	TL1 = 0x66;
+	TH1 = 0xf8;
+	TL1 = 0xcd;
 
 	count++;
 	if(count >= cycleN)
@@ -102,20 +106,28 @@ void Timer1_Int() interrupt 3 	//中断程序
 		count = 0;
 	}
 
-	if(count >= 0 && count < pwmN && left == 1 && right == 0)
+	/*if(count >= 0 && count < pwmN && left == 1 && right == 0)
 	{
 		leftPwm1 = 1;
 		rightPwm1 = 0;
+		led0 = 0;
 	}
 	else if(count >= 0 && count < pwmN && left == 0 && right == 1)
 	{
 		leftPwm1 = 0;
 		rightPwm1 = 1;
+		led1 = 0;
 	}
 	else if(count >= 0 && count < pwmN && left == right)
 	{
 		leftPwm1 = 1;
 		rightPwm1 = 1;
+		led2 = 0;
+	}*/
+	if(count >= 0 && count < pwmN)
+	{
+		leftPwm1 = left;
+		rightPwm1 = right;
 	}
 	else
 	{
