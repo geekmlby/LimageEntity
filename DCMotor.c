@@ -37,7 +37,7 @@ void Sys_Init()
 	IE = 0x88;
 
 	TH1 = 0xf8;
-	TL1 = 0xcd;
+	TL1 = 0xcd;		  		//2000us
 	TR1 = 1;	
 }
 
@@ -57,16 +57,7 @@ void Var_Init()
 }
 
 void CtrlSpeed()				//中间对称地分离P3口的数据，控制两侧电机
-{
-	/*led0 = sensor0;
-	led1 = sensor1;
-	led2 = sensor2;
-	led3 = sensor3;
-	led4 = sensor4;
-	led5 = sensor5;
-	led6 = sensor6;
-	led7 = sensor7;*/	
-
+{	
 	if((sensor0 == 1 && sensor7 == 0) || (sensor1 == 1 && sensor6 == 0) || (sensor2 == 1 && sensor5 == 0))
 	{
 		left = 0;
@@ -106,24 +97,6 @@ void Timer1_Int() interrupt 3 	//中断程序
 		count = 0;
 	}
 
-	/*if(count >= 0 && count < pwmN && left == 1 && right == 0)
-	{
-		leftPwm1 = 1;
-		rightPwm1 = 0;
-		led0 = 0;
-	}
-	else if(count >= 0 && count < pwmN && left == 0 && right == 1)
-	{
-		leftPwm1 = 0;
-		rightPwm1 = 1;
-		led1 = 0;
-	}
-	else if(count >= 0 && count < pwmN && left == right)
-	{
-		leftPwm1 = 1;
-		rightPwm1 = 1;
-		led2 = 0;
-	}*/
 	if(count >= 0 && count < pwmN)
 	{
 		leftPwm1 = left;
